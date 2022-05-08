@@ -25,28 +25,34 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Flux<AccountResponse> getAll() {
         return accountRepository.findAll()
-                .map(AccountResponse::fromModel);
+                .map(AccountResponse::fromModel)
+                .doOnComplete(() -> log.info("Retrieving all Accounts"));
     }
 
     @Override
     public Mono<AccountResponse> getById(String id) {
         return accountRepository.findById(id)
                 .switchIfEmpty(Mono.error(new AccountNotFoundException("Account not found with id: " + id)))
+                .doOnError(ex -> log.error("Account not found with id: {}", id, ex))
                 .map(AccountResponse::fromModel);
+
     }
 
     @Override
     public Mono<Void> delete(String id) {
         return accountRepository.findById(id)
                 .switchIfEmpty(Mono.error(new AccountNotFoundException("Account not found with id: " + id)))
+                .doOnError(ex -> log.error("Account not found with id: {}", id, ex))
                 .flatMap(existingAccount ->
                         accountRepository.delete(existingAccount)
-                );
+                )
+                .doOnSuccess(ex -> log.info("Delete account with id: {}", id));
     }
 
     @Override
     public Mono<Void> deleteAll() {
-        return accountRepository.deleteAll();
+        return accountRepository.deleteAll()
+                .doOnSuccess(ex -> log.info("Delete all accounts"));
     }
 
     @Override
@@ -73,18 +79,22 @@ public class AccountServiceImpl implements AccountService {
                     return accountRepository.save(account);
                 })
                 .map(AccountResponse::fromModel)
-                .onErrorMap(ex -> new AccountCreationException(ex.getMessage()));
+                .onErrorMap(ex -> new AccountCreationException(ex.getMessage()))
+                .doOnSuccess(res -> log.info("Created new account with ID: {}", res.getId()))
+                .doOnError(ex -> log.error("Error creating new Account ", ex));
     }
 
     @Override
     public Mono<AccountResponse> update(String id, AccountRequest accountRequest) {
         return accountRepository.findById(id)
                 .switchIfEmpty(Mono.error(new AccountNotFoundException("Account not found with id: " + id)))
+                .doOnError(ex -> log.error("Account not found with id: {}", id, ex))
                 .flatMap(existingAccount -> {
                     if (existingAccount.getType().equals("Fixed Deposit"))
                         existingAccount.setMovementDay(accountRequest.getMovementDay());
                     return accountRepository.save(existingAccount);
                 })
-                .map(AccountResponse::fromModel);
+                .map(AccountResponse::fromModel)
+                .doOnSuccess(res -> log.info("Updated account with ID: {}", res.getId()));
     }
 }
