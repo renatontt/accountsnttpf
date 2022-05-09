@@ -22,6 +22,11 @@ public class AccountController {
         return service.getAll();
     }
 
+    @GetMapping("/client/{client}")
+    public Flux<AccountResponse> getAllAccountsByClient(@PathVariable String client) {
+        return service.getAllByClient(client);
+    }
+
     @GetMapping("{id}")
     public Mono<AccountResponse> getAccount(@PathVariable String id) {
         return service.getById(id);

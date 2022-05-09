@@ -30,6 +30,13 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public Flux<AccountResponse> getAllByClient(String client) {
+        return accountRepository.findAccountByClient(client)
+                .map(AccountResponse::fromModel)
+                .doOnComplete(() -> log.info("Retrieving all Accounts"));
+    }
+
+    @Override
     public Mono<AccountResponse> getById(String id) {
         return accountRepository.findById(id)
                 .switchIfEmpty(Mono.error(new AccountNotFoundException("Account not found with id: " + id)))
@@ -61,7 +68,7 @@ public class AccountServiceImpl implements AccountService {
                 .flatMap(account -> webClientUtils.getClient(account.getClient())
                         .flatMap(accountClient -> {
                             account.setClientType(accountClient.getType());
-                            if (accountClient.getType().equals("Personal")) {
+                            if (accountClient.getType().equalsIgnoreCase("Personal")) {
                                 return accountRepository.findAccountByClientAndType(accountClient.getId(), account.getType())
                                         .hasElements()
                                         .flatMap(hasElements -> {

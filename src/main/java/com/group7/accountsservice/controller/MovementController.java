@@ -22,6 +22,11 @@ public class MovementController {
         return service.getAll();
     }
 
+    @GetMapping("/product/{account}")
+    public Flux<MovementResponse> getAllMovementsByAccount(@PathVariable String account){
+        return service.getAllMovementsByAccount(account);
+    }
+
     @GetMapping("{id}")
     public Mono<MovementResponse> getMovement(@PathVariable String id){
         return service.getById(id);

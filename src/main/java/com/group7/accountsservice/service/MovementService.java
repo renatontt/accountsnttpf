@@ -11,6 +11,8 @@ public interface MovementService {
 
     Mono<MovementResponse> getById(String id);
 
+    Flux<MovementResponse> getAllMovementsByAccount(String account);
+
     Mono<Void> delete(String id);
 
     Mono<Void> deleteAll();

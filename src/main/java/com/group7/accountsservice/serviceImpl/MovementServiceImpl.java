@@ -40,6 +40,12 @@ public class MovementServiceImpl implements MovementService {
     }
 
     @Override
+    public Flux<MovementResponse> getAllMovementsByAccount(String account) {
+        return movementRepository.findByAccount(account)
+                .map(MovementResponse::fromModel);
+    }
+
+    @Override
     public Mono<Void> delete(String id) {
         return movementRepository.findById(id)
                 .switchIfEmpty(Mono.error(new MovementCreationException("Movement not found with id: " + id)))

@@ -14,7 +14,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-@Document(collection = "renato_accounts")
+@Document(collection = "accounts")
 public class Account {
     @Id
     private String id;
