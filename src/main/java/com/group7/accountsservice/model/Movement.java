@@ -10,7 +10,7 @@ import java.util.Date;
 @NoArgsConstructor
 @ToString
 @AllArgsConstructor
-@Document(collection="renato_movements")
+@Document(collection="movements")
 public class Movement {
     @Id
     private String id;
