@@ -36,7 +36,7 @@ public class AccountResponse {
         if (account.getType().equals("Fixed Deposit"))
             response.movementDay(account.getMovementDay());
 
-        if (account.getClientType().equals("Business"))
+        if (account.getClientType().equalsIgnoreCase("Business"))
             response.holders(account.getHolders()).signers(account.getSigners());
 
         return response.build();

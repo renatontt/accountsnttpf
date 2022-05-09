@@ -35,7 +35,7 @@ public class AccountRequest {
         if (balance < 0)
             throw new AccountCreationException("The balance could not be less than 0 or null");
 
-        if (clientType.equals("Business") &&
+        if (clientType.equalsIgnoreCase("Business") &&
                 (type.equals("Saving") || type.equals("Fixed Deposit") || Objects.isNull(holders) || holders.isEmpty()))
             throw new AccountCreationException("A business account can only be of 'Current' type and must have at least one account holder");
 

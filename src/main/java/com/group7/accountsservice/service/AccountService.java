@@ -9,6 +9,8 @@ public interface AccountService {
 
     Flux<AccountResponse> getAll();
 
+    Flux<AccountResponse> getAllByClient(String client);
+
     Mono<AccountResponse> getById(String id);
 
     Mono<Void> delete(String id);

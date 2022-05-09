@@ -7,4 +7,6 @@ import java.util.Date;
 
 public interface MovementRepository extends ReactiveMongoRepository<Movement,String> {
     Flux<Movement> findByAccountAndDateBetween(String account, Date from, Date to);
+    Flux<Movement> findByAccount(String account);
+
 }
