@@ -25,7 +25,7 @@ public class Movement {
     private String account;
 
     public Double getAmountSigned(){
-        Double amountSigned = type.equals("withdraw")||type.equals("Transfer Out")?-1*amount:amount;
+        Double amountSigned = type.equalsIgnoreCase("withdraw")||type.equalsIgnoreCase("Transfer Out")?-1*amount:amount;
         return amountSigned - transactionFee;
     }
 

@@ -102,7 +102,7 @@ public class TransferServiceImpl implements TransferService {
                 transferRequest.getAmount(),
                 0.0,
                 LocalDate.now(),
-                from.getId()));
+                to.getId()));
 
         from.setBalance(from.getBalance() - transferRequest.getAmount());
         to.setBalance(to.getBalance() + transferRequest.getAmount());

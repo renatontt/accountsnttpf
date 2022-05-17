@@ -7,13 +7,16 @@ import com.group7.accountsservice.service.AccountService;
 import com.group7.accountsservice.service.MovementService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.reactivestreams.Publisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 @RestController
 @RequestMapping("/accounts")
@@ -52,6 +55,12 @@ public class AccountController {
                                                           @PathVariable final Integer yearTo,
                                                           @PathVariable final Integer monthTo,
                                                           @PathVariable final Integer dayTo) {
+
+        Flux<String> test = Flux.just("Orange","Apple");
+        Function<String, Publisher<Integer>> mapper = s -> Flux.just(s.length());
+        Function<String, Integer> mapper2 = s -> s.length();
+        Flux<Integer> test2 = test.flatMap(mapper);
+        Flux<Integer> test3 = test.map(mapper2);
 
         LocalDate from = LocalDate.of(yearFrom, monthFrom, dayFrom);
         LocalDate to = LocalDate.of(yearTo, monthTo, dayTo);

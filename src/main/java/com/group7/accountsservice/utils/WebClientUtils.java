@@ -22,8 +22,8 @@ public class WebClientUtils {
     @Value("${services-uri.clients}")
     private String clientsService;
 
-    //@Value("${services-uri.credits}")
-    //private String creditsService;
+    @Value("${services-uri.credits}")
+    private String creditsService;
 
     public WebClientUtils() {
         this.webClient = WebClient.create("http://localhost:8080/clients");
@@ -50,21 +50,16 @@ public class WebClientUtils {
         return Mono.error(new Exception("Client service unavailable"));
     }
 
-    @CircuitBreaker(name = "credits",fallbackMethod = "creditsUnavailable")
     public Flux<CreditCard> getCredits(String id) {
         return webClient
                 .mutate()
-                .baseUrl(clientsService+"/credit_cards/client")
+                .baseUrl(creditsService+"/credit_cards/client")
                 .build()
                 .get()
                 .uri("/{id}", id)
                 .retrieve()
                 .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(new AccountCreationException("Not found Client with ID: " + id)))
                 .bodyToFlux(CreditCard.class);
-    }
-
-    public Mono<String> creditsUnavailable(String id, Exception ex) {
-        return Mono.error(new Exception("Credits service unavailable"));
     }
 
 }

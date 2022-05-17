@@ -13,6 +13,7 @@ public class AccountResponse {
     private String id;
     private String client;
     private String clientType;
+    private String clientProfile;
     private String type;
     private Double balance;
     private Double maintenanceFee;
@@ -26,6 +27,7 @@ public class AccountResponse {
                 .id(account.getId())
                 .client(account.getClient())
                 .clientType(account.getClientType())
+                .clientProfile(account.getClientProfile())
                 .type(account.getType())
                 .balance(account.getBalance())
                 .maintenanceFee(account.getMaintenanceFee());

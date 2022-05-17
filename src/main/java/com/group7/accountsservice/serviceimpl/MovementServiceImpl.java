@@ -149,14 +149,16 @@ public class MovementServiceImpl implements MovementService {
         int numDays = LocalDate.now().getDayOfMonth();
 
         Mono<Double> lastBalance = accountRepository.findById(account)
-                .map(Account::getBalance);
+                .map(Account::getBalance).log(); //145
+
+
 
         Mono<Double> sumOfMonthMovements = getMovementsOfCurrentMonthByAccount(account)
-                .reduce(0.0, (x1, x2) -> x1 + x2.getAmountSigned());
+                .reduce(0.0, (x1, x2) -> x1 + x2.getAmountSigned()).log();
 
         Mono<Double> sumOfAverageDailyMovements = getMovementsOfCurrentMonthByAccount(account)
                 .map(movement -> movement.getAmountSigned() * (numDays - movement.getDayOfMovement() + 1))
-                .reduce(0.0, Double::sum);
+                .reduce(0.0, Double::sum).log();
 
         return Mono.zip(lastBalance, sumOfMonthMovements, sumOfAverageDailyMovements)
                 .map(result -> {

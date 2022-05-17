@@ -20,7 +20,7 @@ public class AccountUtils {
     public void setMaintenanceFee(Account account){
         switch (account.getType()){
             case "Current":
-                if (account.getClientType().equalsIgnoreCase("PYME")){
+                if (account.getClientProfile().equalsIgnoreCase("PYME")){
                     account.setMaintenanceFee(0.0);
                 }else{
                     account.setMaintenanceFee(currentAccountConfiguration.getMaintenanceFee());

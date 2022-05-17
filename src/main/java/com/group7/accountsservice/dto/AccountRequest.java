@@ -21,6 +21,7 @@ public class AccountRequest {
 
     private String client;
     private String clientType;
+    private String clientProfile;
     private String type;
     private Double balance;
     private List<String> holders;
@@ -46,12 +47,13 @@ public class AccountRequest {
         if (type.equals(FIXED_DEPOSIT) && Objects.isNull(movementDay))
             throw new AccountCreationException("If account type is 'Fixed Deposit' must have a Movement Day attribute");
 
-        if(clientType.equalsIgnoreCase("VIP") && type.equals(SAVING) && Objects.isNull(minimumAmount))
+        if(clientProfile.equalsIgnoreCase("VIP") && type.equals(SAVING) && Objects.isNull(minimumAmount))
             throw new AccountCreationException("If client type is 'VIP' the Saving account must have a minimum amount");
 
         return Account.builder()
                 .client(this.client)
                 .clientType(this.clientType)
+                .clientProfile(this.clientProfile)
                 .type(this.type)
                 .balance(this.balance)
                 .holders(this.holders)

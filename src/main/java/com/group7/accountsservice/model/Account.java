@@ -23,6 +23,7 @@ public class Account {
     @NonNull
     private String client;
     private String clientType;
+    private String clientProfile;
     @NonNull
     private String type;
     @NonNull

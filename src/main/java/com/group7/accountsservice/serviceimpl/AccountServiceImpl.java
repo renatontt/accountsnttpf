@@ -4,7 +4,10 @@ import com.group7.accountsservice.dto.AccountRequest;
 import com.group7.accountsservice.dto.AccountResponse;
 import com.group7.accountsservice.exception.account.AccountCreationException;
 import com.group7.accountsservice.exception.account.AccountNotFoundException;
+import com.group7.accountsservice.model.Account;
+import com.group7.accountsservice.model.Movement;
 import com.group7.accountsservice.repository.AccountRepository;
+import com.group7.accountsservice.repository.MovementRepository;
 import com.group7.accountsservice.service.AccountService;
 import com.group7.accountsservice.utils.AccountUtils;
 import com.group7.accountsservice.utils.WebClientUtils;
@@ -13,6 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -26,6 +31,8 @@ public class AccountServiceImpl implements AccountService {
     private AccountUtils accountUtils;
     private WebClientUtils webClientUtils;
 
+    private MovementRepository movementRepository;
+
     @Override
     public Flux<AccountResponse> getAll() {
         return accountRepository.findAll()
@@ -35,6 +42,11 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Flux<AccountResponse> getAllByClient(String client) {
+
+        Flux<Account> accounts = accountRepository.findAccountByClient(client);
+        Flux<Movement> movementsOfAccounts = accounts.map(account -> movementRepository
+                .findByAccount(account.getId()).blockFirst());
+
         return accountRepository.findAccountByClient(client)
                 .map(AccountResponse::fromModel)
                 .doOnComplete(() -> log.info("Retrieving all Accounts"));
@@ -72,6 +84,19 @@ public class AccountServiceImpl implements AccountService {
                 .flatMap(account -> webClientUtils.getClient(account.getClient())
                         .flatMap(accountClient -> {
                             account.setClientType(accountClient.getType());
+                            account.setClientProfile(accountClient.getProfile());
+
+                            if (accountClient.getProfile().equalsIgnoreCase("VIP") || accountClient.getProfile().equalsIgnoreCase("PYME")) {
+                                return webClientUtils.getCredits(accountClient.getId())
+                                        .hasElements()
+                                        .flatMap(hasElements -> {
+                                            if (!hasElements){
+                                                return Mono.error(new AccountCreationException(accountClient.getProfile().toUpperCase()+ " Client must have a credit cart"));
+                                            }
+                                            return Mono.just(account);
+                                        });
+                            }
+
                             if (accountClient.getType().equalsIgnoreCase("Personal")) {
                                 return accountRepository.findAccountByClientAndType(accountClient.getId(), account.getType())
                                         .hasElements()
@@ -81,15 +106,7 @@ public class AccountServiceImpl implements AccountService {
                                             return Mono.just(account);
                                         });
                             }
-                            if (accountClient.getType().equalsIgnoreCase("VIP") || accountClient.getType().equalsIgnoreCase("PYME")){
-                                return webClientUtils.getCredits(accountClient.getId())
-                                        .hasElements()
-                                        .flatMap(hasElements -> {
-                                            if (!hasElements)
-                                                return Mono.error(new AccountCreationException("VIP Client must have a credit cart"));
-                                            return Mono.just(account);
-                                        });
-                            }
+
                             return Mono.just(account);
                         }))
                 .map(AccountRequest::toModel)
