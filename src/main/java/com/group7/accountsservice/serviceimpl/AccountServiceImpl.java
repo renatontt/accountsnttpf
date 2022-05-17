@@ -1,4 +1,4 @@
-package com.group7.accountsservice.serviceImpl;
+package com.group7.accountsservice.serviceimpl;
 
 import com.group7.accountsservice.dto.AccountRequest;
 import com.group7.accountsservice.dto.AccountResponse;
@@ -18,6 +18,10 @@ import reactor.core.publisher.Mono;
 @AllArgsConstructor
 @Slf4j
 public class AccountServiceImpl implements AccountService {
+
+    private static final String NOT_FOUND_MESSAGE = "Account not found with id: ";
+    private static final String NOT_FOUND_MESSAGE_WITH_ID = "Account not found with id: {}";
+
     private AccountRepository accountRepository;
     private AccountUtils accountUtils;
     private WebClientUtils webClientUtils;
@@ -39,8 +43,8 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Mono<AccountResponse> getById(String id) {
         return accountRepository.findById(id)
-                .switchIfEmpty(Mono.error(new AccountNotFoundException("Account not found with id: " + id)))
-                .doOnError(ex -> log.error("Account not found with id: {}", id, ex))
+                .switchIfEmpty(Mono.error(new AccountNotFoundException(NOT_FOUND_MESSAGE + id)))
+                .doOnError(ex -> log.error(NOT_FOUND_MESSAGE_WITH_ID, id, ex))
                 .map(AccountResponse::fromModel);
 
     }
@@ -48,8 +52,8 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Mono<Void> delete(String id) {
         return accountRepository.findById(id)
-                .switchIfEmpty(Mono.error(new AccountNotFoundException("Account not found with id: " + id)))
-                .doOnError(ex -> log.error("Account not found with id: {}", id, ex))
+                .switchIfEmpty(Mono.error(new AccountNotFoundException(NOT_FOUND_MESSAGE + id)))
+                .doOnError(ex -> log.error(NOT_FOUND_MESSAGE_WITH_ID, id, ex))
                 .flatMap(existingAccount ->
                         accountRepository.delete(existingAccount)
                 )
@@ -77,6 +81,15 @@ public class AccountServiceImpl implements AccountService {
                                             return Mono.just(account);
                                         });
                             }
+                            if (accountClient.getType().equalsIgnoreCase("VIP") || accountClient.getType().equalsIgnoreCase("PYME")){
+                                return webClientUtils.getCredits(accountClient.getId())
+                                        .hasElements()
+                                        .flatMap(hasElements -> {
+                                            if (!hasElements)
+                                                return Mono.error(new AccountCreationException("VIP Client must have a credit cart"));
+                                            return Mono.just(account);
+                                        });
+                            }
                             return Mono.just(account);
                         }))
                 .map(AccountRequest::toModel)
@@ -94,8 +107,8 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Mono<AccountResponse> update(String id, AccountRequest accountRequest) {
         return accountRepository.findById(id)
-                .switchIfEmpty(Mono.error(new AccountNotFoundException("Account not found with id: " + id)))
-                .doOnError(ex -> log.error("Account not found with id: {}", id, ex))
+                .switchIfEmpty(Mono.error(new AccountNotFoundException(NOT_FOUND_MESSAGE + id)))
+                .doOnError(ex -> log.error(NOT_FOUND_MESSAGE_WITH_ID, id, ex))
                 .flatMap(existingAccount -> {
                     if (existingAccount.getType().equals("Fixed Deposit"))
                         existingAccount.setMovementDay(accountRequest.getMovementDay());

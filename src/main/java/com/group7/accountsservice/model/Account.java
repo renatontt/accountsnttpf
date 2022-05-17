@@ -2,6 +2,7 @@ package com.group7.accountsservice.model;
 
 import com.group7.accountsservice.exception.movement.MovementCreationException;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -14,6 +15,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@Slf4j
 @Document(collection = "accounts")
 public class Account {
     @Id
@@ -31,32 +33,33 @@ public class Account {
     private List<String> signers;
     private Integer movementDay;
 
-    public boolean isMovementValid(String type, Double amount) {
+    public boolean isMovementValid(Movement movement) {
 
-        if (Objects.isNull(type) || Objects.isNull(amount))
+        if (Objects.isNull(movement.getType()) || Objects.isNull(movement.getAmount()))
             throw new MovementCreationException("Type, Account and Amount are mandatory attributes");
 
-        return !type.equalsIgnoreCase("withdraw") ||
-                balance >= amount;
+        return !movement.getType().equalsIgnoreCase("withdraw") ||
+                balance >= movement.getAmount() + movement.getTransactionFee();
+    }
+
+    public boolean canFixedAccountMove() {
+        return !type.equals("Fixed Deposit") ||
+                LocalDate.now().getDayOfMonth() == movementDay;
     }
 
     public boolean isMovementInAccountLimit(Long count) {
-        int countInt = count.intValue();
-
-        LocalDate currentDate = LocalDate.now();
-        if (type.equals("Fixed Deposit") && currentDate.getDayOfMonth()!=movementDay){
-            return false;
-        }
-
-        return countInt<movementsLimit;
+        return count.intValue() < movementsLimit;
     }
 
-    public void makeMovement(String type, Double amount) {
-        if (type.equalsIgnoreCase("withdraw")) {
-            balance -= amount;
-        } else if (type.equalsIgnoreCase("deposit")) {
-            balance += amount;
+    public void makeMovement(Movement movement) {
+        if (movement.getType().equalsIgnoreCase("withdraw")) {
+            balance -= movement.getAmount();
+        } else if (movement.getType().equalsIgnoreCase("deposit")) {
+            balance += movement.getAmount();
         }
+
+        if (!Objects.isNull(movement.getTransactionFee()))
+            balance -= movement.getTransactionFee();
     }
 
 

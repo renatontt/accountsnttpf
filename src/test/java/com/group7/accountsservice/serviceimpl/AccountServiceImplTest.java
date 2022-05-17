@@ -1,4 +1,4 @@
-package com.group7.accountsservice.serviceImpl;
+package com.group7.accountsservice.serviceimpl;
 
 import com.group7.accountsservice.dto.AccountRequest;
 import com.group7.accountsservice.exception.account.AccountCreationException;
@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 
-public class AccountServiceImplTest {
+class AccountServiceImplTest {
 
     private static final String ACCOUNT_ID = "627760015d3f4d6ace96c44b";
     private static final String ACCOUNT_TYPE = "Saving";

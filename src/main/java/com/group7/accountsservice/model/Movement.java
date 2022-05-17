@@ -3,7 +3,8 @@ package com.group7.accountsservice.model;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import java.util.Date;
+
+import java.time.LocalDate;
 
 @Data
 @Builder
@@ -14,15 +15,21 @@ import java.util.Date;
 public class Movement {
     @Id
     private String id;
-    @NonNull
+
     private String type;
-    @NonNull
+
     private Double amount;
-    private Date date;
+    private Double transactionFee;
+    private LocalDate date;
     @NonNull
     private String account;
 
     public Double getAmountSigned(){
-        return type.equals("withdraw")?-1*amount:amount;
+        Double amountSigned = type.equals("withdraw")||type.equals("Transfer Out")?-1*amount:amount;
+        return amountSigned - transactionFee;
+    }
+
+    public int getDayOfMovement(){
+        return date.getDayOfMonth();
     }
 }

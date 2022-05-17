@@ -17,11 +17,14 @@ public class AccountUtils {
     private FixedDepositAccountConfiguration fixedDepositAccountConfiguration;
     private SavingAccountConfiguration savingAccountConfiguration;
 
-
     public void setMaintenanceFee(Account account){
         switch (account.getType()){
             case "Current":
-                account.setMaintenanceFee(currentAccountConfiguration.getMaintenanceFee());
+                if (account.getClientType().equalsIgnoreCase("PYME")){
+                    account.setMaintenanceFee(0.0);
+                }else{
+                    account.setMaintenanceFee(currentAccountConfiguration.getMaintenanceFee());
+                }
                 break;
             case "Saving":
                 account.setMaintenanceFee(savingAccountConfiguration.getMaintenanceFee());

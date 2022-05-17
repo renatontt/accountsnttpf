@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Data
 @Builder
@@ -16,14 +16,16 @@ public class MovementResponse {
     private String id;
     private String type;
     private Double amount;
-    private Date date;
+    private LocalDate date;
     private String account;
+    private Double transactionFee;
 
     public static MovementResponse fromModel(Movement movement) {
         return MovementResponse.builder()
                 .id(movement.getId())
                 .type(movement.getType())
                 .amount(movement.getAmount())
+                .transactionFee(movement.getTransactionFee())
                 .date(movement.getDate())
                 .account(movement.getAccount())
                 .build();

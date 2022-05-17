@@ -22,7 +22,7 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
-public class AccountIT {
+class AccountIT {
     private static final String ACCOUNT_ID = "627760015d3f4d6ace96c44b";
     private static final String ACCOUNT_TYPE = "Saving";
     private static final String ACCOUNT_CLIENT = "627718aff4256e7261ae367f";

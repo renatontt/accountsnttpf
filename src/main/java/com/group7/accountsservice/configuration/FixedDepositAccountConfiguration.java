@@ -11,4 +11,5 @@ import org.springframework.stereotype.Component;
 public class FixedDepositAccountConfiguration {
     private Integer movementsLimit;
     private Double maintenanceFee;
+    private Double transactionFee;
 }
