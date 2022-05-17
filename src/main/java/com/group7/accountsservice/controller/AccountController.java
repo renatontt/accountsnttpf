@@ -30,49 +30,53 @@ public class AccountController {
     }
 
     @GetMapping("/client/{client}")
-    public Flux<AccountResponse> getAllAccountsByClient(@PathVariable String client) {
+    public Flux<AccountResponse> getAllAccountsByClient(@PathVariable final String client) {
         return service.getAllByClient(client);
     }
 
     @GetMapping("{id}")
-    public Mono<AccountResponse> getAccount(@PathVariable String id) {
+    public Mono<AccountResponse> getAccount(@PathVariable final String id) {
         return service.getById(id);
     }
 
     @GetMapping("{id}/dailyBalance")
-    public Mono<Double> getReportOfDailyBalance(@PathVariable String id) {
+    public Mono<Double> getReportOfDailyBalance(@PathVariable final String id) {
         return movementService.getReportOfDailyBalance(id);
     }
 
     @GetMapping("{id}/feeReport/from/{yearFrom}/{monthFrom}/{dayFrom}/to/{yearTo}/{monthTo}/{dayTo}")
-    public Flux<FeeResponse> getAllFeesByAccountAndPeriod(@PathVariable String id, @PathVariable Integer yearFrom, @PathVariable Integer monthFrom,
-                                                          @PathVariable Integer dayFrom, @PathVariable Integer yearTo, @PathVariable Integer monthTo, @PathVariable Integer dayTo) {
+    public Flux<FeeResponse> getAllFeesByAccountAndPeriod(@PathVariable final String id,
+                                                          @PathVariable final Integer yearFrom,
+                                                          @PathVariable final Integer monthFrom,
+                                                          @PathVariable final Integer dayFrom,
+                                                          @PathVariable final Integer yearTo,
+                                                          @PathVariable final Integer monthTo,
+                                                          @PathVariable final Integer dayTo) {
 
-        LocalDate from = LocalDate.of(yearFrom,monthFrom,dayFrom);
-        LocalDate to = LocalDate.of(yearTo,monthTo,dayTo);
-
-        return movementService.getAllFeesByAccountAndPeriod(id,from,to);
+        LocalDate from = LocalDate.of(yearFrom, monthFrom, dayFrom);
+        LocalDate to = LocalDate.of(yearTo, monthTo, dayTo);
+        return movementService.getAllFeesByAccountAndPeriod(id, from, to);
     }
 
     @GetMapping("/client/{client}/dailyBalance")
-    public Flux<Map<String, Double>> getAllAccountsReportByClient(@PathVariable String client) {
+    public Flux<Map<String, Double>> getAllAccountsReportByClient(@PathVariable final String client) {
         return movementService.getAllReportsByClient(client);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<AccountResponse> saveAccount(@RequestBody AccountRequest accountRequest) {
+    public Mono<AccountResponse> saveAccount(@RequestBody final AccountRequest accountRequest) {
         return service.save(accountRequest);
     }
 
     @PutMapping("{id}")
-    public Mono<AccountResponse> updateAccount(@PathVariable String id,
-                                               @RequestBody AccountRequest accountRequest) {
+    public Mono<AccountResponse> updateAccount(@PathVariable final String id,
+                                               @RequestBody final AccountRequest accountRequest) {
         return service.update(id, accountRequest);
     }
 
     @DeleteMapping("{id}")
-    public Mono<Void> deleteAccount(@PathVariable String id) {
+    public Mono<Void> deleteAccount(@PathVariable final String id) {
         return service.delete(id);
     }
 

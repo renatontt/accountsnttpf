@@ -33,33 +33,35 @@ public class Account {
     private List<String> signers;
     private Integer movementDay;
 
-    public boolean isMovementValid(Movement movement) {
+    public boolean isMovementValid(final Movement movement) {
 
-        if (Objects.isNull(movement.getType()) || Objects.isNull(movement.getAmount()))
+        if (Objects.isNull(movement.getType()) || Objects.isNull(movement.getAmount())) {
             throw new MovementCreationException("Type, Account and Amount are mandatory attributes");
+        }
 
         return !movement.getType().equalsIgnoreCase("withdraw") ||
                 balance >= movement.getAmount() + movement.getTransactionFee();
     }
 
     public boolean canFixedAccountMove() {
-        return !type.equals("Fixed Deposit") ||
-                LocalDate.now().getDayOfMonth() == movementDay;
+        return !type.equals("Fixed Deposit")
+                || LocalDate.now().getDayOfMonth() == movementDay;
     }
 
-    public boolean isMovementInAccountLimit(Long count) {
+    public boolean isMovementInAccountLimit(final Long count) {
         return count.intValue() < movementsLimit;
     }
 
-    public void makeMovement(Movement movement) {
+    public void makeMovement(final Movement movement) {
         if (movement.getType().equalsIgnoreCase("withdraw")) {
             balance -= movement.getAmount();
         } else if (movement.getType().equalsIgnoreCase("deposit")) {
             balance += movement.getAmount();
         }
 
-        if (!Objects.isNull(movement.getTransactionFee()))
+        if (!Objects.isNull(movement.getTransactionFee())) {
             balance -= movement.getTransactionFee();
+        }
     }
 
 
