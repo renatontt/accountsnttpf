@@ -30,6 +30,7 @@ class AccountServiceImplTest {
     private static final String ACCOUNT_CLIENT = "627718aff4256e7261ae367f";
     private static final Double ACCOUNT_BALANCE = 100.0;
     private static final String ACCOUNT_CLIENT_TYPE = "Personal";
+    private static final String ACCOUNT_CLIENT_PROFILE = "";
     private static final Double ACCOUNT_MAINTENANCE_FEE = 0.0;
     private static final Integer ACCOUNT_MOVEMENTS_LIMIT = 5;
     private static final List<String> ACCOUNT_HOLDERS = null;
@@ -70,6 +71,7 @@ class AccountServiceImplTest {
                 .client(ACCOUNT_CLIENT)
                 .balance(ACCOUNT_BALANCE)
                 .clientType(ACCOUNT_CLIENT_TYPE)
+                .clientProfile(ACCOUNT_CLIENT_PROFILE)
                 .maintenanceFee(ACCOUNT_MAINTENANCE_FEE)
                 .movementsLimit(ACCOUNT_MOVEMENTS_LIMIT)
                 .holders(ACCOUNT_HOLDERS)
@@ -81,6 +83,7 @@ class AccountServiceImplTest {
                 .id(ACCOUNT_CLIENT)
                 .name(ACCOUNT_CLIENT_NAME)
                 .type(ACCOUNT_CLIENT_TYPE)
+                .profile(ACCOUNT_CLIENT_PROFILE)
                 .documentType(ACCOUNT_CLIENT_DOCUMENT_TYPE)
                 .documentNumber(ACCOUNT_CLIENT_DOCUMENT_NUMBER).build();
 
@@ -102,6 +105,7 @@ class AccountServiceImplTest {
                     assertEquals(ACCOUNT_CLIENT, accountResponse.getClient());
                     assertEquals(ACCOUNT_BALANCE, accountResponse.getBalance());
                     assertEquals(ACCOUNT_CLIENT_TYPE, accountResponse.getClientType());
+                    assertEquals(ACCOUNT_CLIENT_PROFILE, accountResponse.getClientProfile());
                     assertEquals(ACCOUNT_MAINTENANCE_FEE, accountResponse.getMaintenanceFee());
                     assertEquals(ACCOUNT_MOVEMENTS_LIMIT, accountResponse.getMovementsLimit());
                     assertEquals(ACCOUNT_HOLDERS, accountResponse.getHolders());
