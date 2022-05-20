@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: accounts
   labels:
-    app: sample-app
+    app: accounts
     service: accounts
 spec:
   type: LoadBalancer
