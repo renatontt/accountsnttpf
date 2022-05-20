@@ -16,7 +16,7 @@ spec:
         service: accounts
     spec:
       containers:
-        - name: webapp
+        - name: accounts
           image: accounts.azurecr.io/accounts:v1
           imagePullPolicy: IfNotPresent
           ports:
