@@ -3,9 +3,10 @@ spring:
     name: AccountsService
   cloud:
     config:
+      uri: http://cloudconfigserver:8888
       discovery:
         enabled: true
-        service-id: cloud-config-server
+        service-id: cloudconfigserver
       fail-fast: true
       retry:
         initial-interval: 1500
