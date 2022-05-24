@@ -38,8 +38,18 @@ public class MovementRequest {
                 .build();
     }
 
+    public Movement toModelWithAmount(Double balance) {
+        return Movement.builder()
+                .type(this.type)
+                .account(this.account)
+                .amount(balance)
+                .transactionFee(0.0)
+                .date(LocalDate.now())
+                .build();
+    }
+
     public Double getAmountSigned() {
-        return type.equals("withdraw") ? -1 * amount : amount;
+        return type.equals("withdraw")||type.equals("withdraw debit")||type.equals("pay") ? -1 * amount : amount;
     }
 
 }

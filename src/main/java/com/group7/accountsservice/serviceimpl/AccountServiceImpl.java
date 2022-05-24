@@ -1,13 +1,15 @@
 package com.group7.accountsservice.serviceimpl;
 
-import com.group7.accountsservice.dto.AccountRequest;
-import com.group7.accountsservice.dto.AccountResponse;
+import com.group7.accountsservice.dto.*;
 import com.group7.accountsservice.exception.account.AccountCreationException;
 import com.group7.accountsservice.exception.account.AccountNotFoundException;
 import com.group7.accountsservice.model.Account;
+import com.group7.accountsservice.model.DebitCard;
 import com.group7.accountsservice.model.Movement;
 import com.group7.accountsservice.repository.AccountRepository;
+import com.group7.accountsservice.repository.DebitCardRepository;
 import com.group7.accountsservice.repository.MovementRepository;
+import com.group7.accountsservice.repository.TransferRepository;
 import com.group7.accountsservice.service.AccountService;
 import com.group7.accountsservice.utils.AccountUtils;
 import com.group7.accountsservice.utils.WebClientUtils;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -33,6 +36,10 @@ public class AccountServiceImpl implements AccountService {
 
     private MovementRepository movementRepository;
 
+    private DebitCardRepository debitCardRepository;
+
+    private TransferRepository transferRepository;
+
     @Override
     public Flux<AccountResponse> getAll() {
         return accountRepository.findAll()
@@ -42,14 +49,49 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Flux<AccountResponse> getAllByClient(String client) {
-
-        Flux<Account> accounts = accountRepository.findAccountByClient(client);
-        Flux<Movement> movementsOfAccounts = accounts.map(account -> movementRepository
-                .findByAccount(account.getId()).blockFirst());
-
         return accountRepository.findAccountByClient(client)
                 .map(AccountResponse::fromModel)
                 .doOnComplete(() -> log.info("Retrieving all Accounts"));
+    }
+
+    @Override
+    public Mono<AccountReportResponse> getReport(String id, LocalDate from, LocalDate to) {
+        return accountRepository.findById(id)
+                .switchIfEmpty(Mono.error(new AccountNotFoundException(NOT_FOUND_MESSAGE + id)))
+                .doOnError(ex -> log.error(NOT_FOUND_MESSAGE_WITH_ID, id, ex))
+                .flatMap(account -> {
+                    AccountReportResponse report = AccountReportResponse.fromModel(account);
+
+                    Mono<DebitCardResponse> debitCard = debitCardRepository
+                            .findCardByMainAccount(id)
+                            .defaultIfEmpty(new DebitCard())
+                            .next()
+                            .map(DebitCardResponse::fromModel);
+
+                    Mono<List<MovementResponse>> movements = movementRepository
+                            .findByAccountAndDateBetween(id, from, to)
+                            .map(MovementResponse::fromModel)
+                            .collectList();
+
+                    Mono<List<FeeResponse>> fees = movementRepository.findByAccountAndDateBetween(id, from, to)
+                            .filter(movement -> movement.getTransactionFee() > 0.0)
+                            .map(movement -> new FeeResponse(movement.getDate(), movement.getTransactionFee()))
+                            .collectList();
+
+                    Mono<List<TransferResponse>> transfers = transferRepository.findByFromOrToAndDateBetween(id,id,from,to)
+                            .map(TransferResponse::fromModel)
+                            .collectList();
+
+                    return Mono.zip(debitCard,movements,fees,transfers)
+                            .map(result -> {
+                                report.setDebitCard(result.getT1());
+                                report.setMovements(result.getT2());
+                                report.setFees(result.getT3());
+                                report.setTransfers(result.getT4());
+                                return report;
+                            })
+                            .doOnError(err -> log.error("Error",err));
+                });
     }
 
     @Override
@@ -58,7 +100,6 @@ public class AccountServiceImpl implements AccountService {
                 .switchIfEmpty(Mono.error(new AccountNotFoundException(NOT_FOUND_MESSAGE + id)))
                 .doOnError(ex -> log.error(NOT_FOUND_MESSAGE_WITH_ID, id, ex))
                 .map(AccountResponse::fromModel);
-
     }
 
     @Override

@@ -34,6 +34,13 @@ public class Account {
     private List<String> signers;
     private Integer movementDay;
 
+    public Account(String id, @NonNull String client, @NonNull String type, @NonNull Double balance) {
+        this.id = id;
+        this.client = client;
+        this.type = type;
+        this.balance = balance;
+    }
+
     public boolean isMovementValid(final Movement movement) {
 
         if (Objects.isNull(movement.getType()) || Objects.isNull(movement.getAmount())) {
@@ -54,7 +61,9 @@ public class Account {
     }
 
     public void makeMovement(final Movement movement) {
-        if (movement.getType().equalsIgnoreCase("withdraw")) {
+        if (movement.getType().equalsIgnoreCase("withdraw") ||
+                movement.getType().equalsIgnoreCase("pay") ||
+                movement.getType().equalsIgnoreCase("withdraw debit")) {
             balance -= movement.getAmount();
         } else if (movement.getType().equalsIgnoreCase("deposit")) {
             balance += movement.getAmount();

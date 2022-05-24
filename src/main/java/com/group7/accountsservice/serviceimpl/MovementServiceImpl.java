@@ -83,13 +83,17 @@ public class MovementServiceImpl implements MovementService {
         return Mono.just(movementRequest)
                 .map(MovementRequest::toModel)
                 .flatMap(movement -> accountRepository.findById(movement.getAccount())
-                        .switchIfEmpty(Mono.error(new MovementCreationException("Account not found with id: " + movement.getAccount())))
+                        .switchIfEmpty(Mono.error(new MovementCreationException("Account not found with id: "
+                                + movement.getAccount())))
                         .zipWith(getCountOfMovementsOfCurrentMonthByAccount(movement.getAccount()))
                         .flatMap(result -> {
                             Account existingAccount = result.getT1();
                             Long movementsCurrentMonth = result.getT2();
+
                             if (!existingAccount.canFixedAccountMove())
-                                return Mono.error(new MovementCreationException("Fixed account can only make movement on: " + existingAccount.getMovementDay() + " of each month"));
+                                return Mono.error(
+                                        new MovementCreationException("Fixed account can only make movement on: " +
+                                                existingAccount.getMovementDay() + " of each month"));
 
                             if (!existingAccount.isMovementInAccountLimit(movementsCurrentMonth))
                                 movementUtils.setTransactionFee(movement, existingAccount.getType());
@@ -97,10 +101,8 @@ public class MovementServiceImpl implements MovementService {
                             if (!existingAccount.isMovementValid(movement))
                                 return Mono.error(new MovementCreationException("Not enough money"));
 
-                            existingAccount.makeMovement(movement);
-
                             return accountRepository.save(existingAccount)
-                                    .then(movementRepository.insert(movement));
+                                    .then(movementRepository.save(movement));
                         }))
                 .map(MovementResponse::fromModel)
                 .onErrorMap(ex -> new MovementCreationException(ex.getMessage()));
@@ -123,6 +125,7 @@ public class MovementServiceImpl implements MovementService {
         return movementMono.zipWith(accountMono)
                 .flatMap(result -> {
                     Movement differenceMovement = result.getT1();
+                    log.info("differenceMovement: {}",differenceMovement);
                     Account accountFound = result.getT2();
                     if (accountFound.isMovementValid(differenceMovement)) {
                         accountFound.makeMovement(differenceMovement);
@@ -149,16 +152,14 @@ public class MovementServiceImpl implements MovementService {
         int numDays = LocalDate.now().getDayOfMonth();
 
         Mono<Double> lastBalance = accountRepository.findById(account)
-                .map(Account::getBalance).log(); //145
-
-
+                .map(Account::getBalance); //145
 
         Mono<Double> sumOfMonthMovements = getMovementsOfCurrentMonthByAccount(account)
-                .reduce(0.0, (x1, x2) -> x1 + x2.getAmountSigned()).log();
+                .reduce(0.0, (x1, x2) -> x1 + x2.getAmountSigned());
 
         Mono<Double> sumOfAverageDailyMovements = getMovementsOfCurrentMonthByAccount(account)
                 .map(movement -> movement.getAmountSigned() * (numDays - movement.getDayOfMovement() + 1))
-                .reduce(0.0, Double::sum).log();
+                .reduce(0.0, Double::sum);
 
         return Mono.zip(lastBalance, sumOfMonthMovements, sumOfAverageDailyMovements)
                 .map(result -> {

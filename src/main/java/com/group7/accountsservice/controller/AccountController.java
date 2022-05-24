@@ -1,5 +1,6 @@
 package com.group7.accountsservice.controller;
 
+import com.group7.accountsservice.dto.AccountReportResponse;
 import com.group7.accountsservice.dto.AccountRequest;
 import com.group7.accountsservice.dto.AccountResponse;
 import com.group7.accountsservice.dto.FeeResponse;
@@ -56,15 +57,23 @@ public class AccountController {
                                                           @PathVariable final Integer monthTo,
                                                           @PathVariable final Integer dayTo) {
 
-        Flux<String> test = Flux.just("Orange","Apple");
-        Function<String, Publisher<Integer>> mapper = s -> Flux.just(s.length());
-        Function<String, Integer> mapper2 = s -> s.length();
-        Flux<Integer> test2 = test.flatMap(mapper);
-        Flux<Integer> test3 = test.map(mapper2);
-
         LocalDate from = LocalDate.of(yearFrom, monthFrom, dayFrom);
         LocalDate to = LocalDate.of(yearTo, monthTo, dayTo);
         return movementService.getAllFeesByAccountAndPeriod(id, from, to);
+    }
+
+    @GetMapping("{id}/report/from/{yearFrom}/{monthFrom}/{dayFrom}/to/{yearTo}/{monthTo}/{dayTo}")
+    public Mono<AccountReportResponse> getReportByAccountAndPeriod(@PathVariable final String id,
+                                                                   @PathVariable final Integer yearFrom,
+                                                                   @PathVariable final Integer monthFrom,
+                                                                   @PathVariable final Integer dayFrom,
+                                                                   @PathVariable final Integer yearTo,
+                                                                   @PathVariable final Integer monthTo,
+                                                                   @PathVariable final Integer dayTo) {
+
+        LocalDate from = LocalDate.of(yearFrom, monthFrom, dayFrom);
+        LocalDate to = LocalDate.of(yearTo, monthTo, dayTo);
+        return service.getReport(id, from, to);
     }
 
     @GetMapping("/client/{client}/dailyBalance")
