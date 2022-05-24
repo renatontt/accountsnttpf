@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @RestController
-@RequestMapping("/debitCard")
+@RequestMapping("/accounts/debitCard")
 @AllArgsConstructor
 @Slf4j
 public class DebitCardController {
