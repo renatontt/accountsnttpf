@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -19,7 +20,7 @@ public class TransferResponse {
     private String from;
     private String to;
     private Double amount;
-    private Date date;
+    private LocalDate date;
 
     public static TransferResponse fromModel(Transfer transfer) {
         return TransferResponse.builder()

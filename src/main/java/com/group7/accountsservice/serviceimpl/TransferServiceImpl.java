@@ -113,7 +113,7 @@ public class TransferServiceImpl implements TransferService {
         return Mono.zip(newMovementOut, newMovementIn, updatedFromAccount, updatedToAccount)
                 .then(Mono.just(transferRequest))
                 .map(TransferRequest::toModel)
-                .flatMap(transfer -> transferRepository.insert(transfer));
+                .flatMap(transfer -> transferRepository.save(transfer));
     }
 
     @Override
@@ -121,7 +121,7 @@ public class TransferServiceImpl implements TransferService {
 
         return Mono.just(transferRequest)
                 .map(TransferRequest::toModel)
-                .flatMap(transfer -> transferRepository.insert(transfer))
+                .flatMap(transfer -> transferRepository.save(transfer))
                 .map(TransferResponse::fromModel)
                 .onErrorMap(ex -> new TransferNotFoundException(ex.getMessage()));
 

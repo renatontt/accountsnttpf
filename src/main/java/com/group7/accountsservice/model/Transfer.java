@@ -4,6 +4,7 @@ import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -21,5 +22,5 @@ public class Transfer {
     private String to;
     @NonNull
     private Double amount;
-    private Date date;
+    private LocalDate date;
 }

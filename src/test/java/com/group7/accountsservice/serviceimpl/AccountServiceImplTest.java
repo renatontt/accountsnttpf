@@ -455,8 +455,8 @@ class AccountServiceImplTest {
         response.setFees(Collections.emptyList());
         response.setTransfers(Collections.emptyList());
 
-        LocalDate from = LocalDate.of(2022, 05, 17);
-        LocalDate to = LocalDate.of(2022, 05, 25);
+        LocalDate from = LocalDate.of(2022, 5, 17);
+        LocalDate to = LocalDate.of(2022, 5, 25);
 
         when(accountRepository.findById(ACCOUNT_ID))
                 .thenReturn(Mono.just(account));

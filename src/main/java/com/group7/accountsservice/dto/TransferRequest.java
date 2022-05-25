@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.Objects;
 
@@ -33,7 +34,7 @@ public class TransferRequest {
                 .from(this.from)
                 .to(this.to)
                 .amount(this.amount)
-                .date(new Date())
+                .date(LocalDate.now())
                 .build();
     }
 }
