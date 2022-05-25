@@ -124,7 +124,7 @@ public class AccountServiceImpl implements AccountService {
         return webClientUtils.getCredits(accountClient.getId())
                 .hasElements()
                 .flatMap(hasElements -> !hasElements ? Mono.error(new AccountCreationException(accountClient.getProfile().toUpperCase()
-                                + " Client must have a credit cart")) :
+                        + " Client must have a credit cart")) :
                         Mono.just(account));
     }
 
@@ -133,38 +133,42 @@ public class AccountServiceImpl implements AccountService {
                         account.getType())
                 .hasElements()
                 .flatMap(hasElements -> hasElements ? Mono.error(new AccountCreationException("Client already have a "
-                                + account.getType() + " account")) :
+                        + account.getType() + " account")) :
                         Mono.just(account));
     }
 
     @Override
     public Mono<AccountResponse> save(AccountRequest accountRequest) {
         return Mono.just(accountRequest)
-                .flatMap(account -> webClientUtils.getClient(account.getClient())
-                        .flatMap(accountClient -> {
-                            account.setClientType(accountClient.getType());
-                            account.setClientProfile(accountClient.getProfile());
+                .flatMap(account1 -> webClientUtils.isClientWithCreditDebt(account1.getClient())
+                        .flatMap(withDebt -> withDebt ?
+                                Mono.error(new AccountCreationException("Client have a credit debt")) :
+                                Mono.just(account1))
+                        .flatMap(account -> webClientUtils.getClient(account.getClient())
+                                .flatMap(accountClient -> {
+                                    account.setClientType(accountClient.getType());
+                                    account.setClientProfile(accountClient.getProfile());
 
-                            if (accountClient.getProfile().matches("VIP|PYME")) {
-                                return validateIfClientHasCreditCart(accountClient, account);
-                            }
+                                    if (accountClient.getProfile().matches("VIP|PYME|vip|pyme")) {
+                                        return validateIfClientHasCreditCart(accountClient, account);
+                                    }
 
-                            if (accountClient.getType().equalsIgnoreCase("Personal")) {
-                                return validateIfPersonalClientHasAccountType(accountClient, account);
-                            }
+                                    if (accountClient.getType().equalsIgnoreCase("Personal")) {
+                                        return validateIfPersonalClientHasAccountType(accountClient, account);
+                                    }
 
-                            return Mono.just(account);
-                        }))
-                .map(AccountRequest::toModel)
-                .flatMap(account -> {
-                    accountUtils.setMaintenanceFee(account);
-                    accountUtils.setMovementsLimit(account);
-                    return accountRepository.save(account);
-                })
-                .map(AccountResponse::fromModel)
-                .onErrorMap(ex -> new AccountCreationException(ex.getMessage()))
-                .doOnSuccess(res -> log.info("Created new account with ID: {}", res.getId()))
-                .doOnError(ex -> log.error("Error creating new Account ", ex));
+                                    return Mono.just(account);
+                                }))
+                        .map(AccountRequest::toModel)
+                        .flatMap(account -> {
+                            accountUtils.setMaintenanceFee(account);
+                            accountUtils.setMovementsLimit(account);
+                            return accountRepository.save(account);
+                        })
+                        .map(AccountResponse::fromModel)
+                        .onErrorMap(ex -> new AccountCreationException(ex.getMessage()))
+                        .doOnSuccess(res -> log.info("Created new account with ID: {}", res.getId()))
+                        .doOnError(ex -> log.error("Error creating new Account ", ex)));
     }
 
     @Override
