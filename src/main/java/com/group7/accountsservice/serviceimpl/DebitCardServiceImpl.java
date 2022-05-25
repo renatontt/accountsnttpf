@@ -103,7 +103,7 @@ public class DebitCardServiceImpl implements DebitCardService {
         return validateAndFindCard(debitCardRequest)
                 .hasElements()
                 .flatMap(cardExist -> {
-                    if (cardExist) {
+                    if (Boolean.TRUE.equals(cardExist)) {
                         return Mono.error(new DebitCardCreationException("Card number is already in use"));
                     }
                     return debitCardRepository.save(debitCardRequest.toModel());
@@ -124,14 +124,14 @@ public class DebitCardServiceImpl implements DebitCardService {
     public Mono<List<MovementResponse>> makeMovement(MovementRequest movementRequest) {
         return hasEnoughMoney(movementRequest)
                 .flatMap(hasEnoughMoney -> {
-                    if (!hasEnoughMoney) {
+                    if (Boolean.FALSE.equals(hasEnoughMoney)) {
                         return Mono.error(new DebitCardCreationException("Not enough balance in linked accounts"));
                     }
                     return debitCardRepository.findById(movementRequest.getAccount());
                 })
                 .flatMapMany(debitCard -> Flux.fromIterable(debitCard.getOptionalAccounts()))
                 .flatMap(accountId -> accountRepository.findById(accountId))
-                .takeWhile((x) -> movementRequest.getAmount() > 0)
+                .takeWhile(x -> movementRequest.getAmount() > 0)
                 .flatMap(account -> {
                     movementRequest.setAccount(account.getId());
 

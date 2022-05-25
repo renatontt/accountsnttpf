@@ -8,16 +8,13 @@ import com.group7.accountsservice.service.AccountService;
 import com.group7.accountsservice.service.MovementService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.reactivestreams.Publisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 @RestController
 @RequestMapping("/accounts")

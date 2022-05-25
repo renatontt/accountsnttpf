@@ -4,6 +4,7 @@ import com.group7.accountsservice.dto.*;
 import com.group7.accountsservice.exception.account.AccountCreationException;
 import com.group7.accountsservice.exception.account.AccountNotFoundException;
 import com.group7.accountsservice.model.Account;
+import com.group7.accountsservice.model.Client;
 import com.group7.accountsservice.model.DebitCard;
 import com.group7.accountsservice.model.Movement;
 import com.group7.accountsservice.repository.AccountRepository;
@@ -78,11 +79,11 @@ public class AccountServiceImpl implements AccountService {
                             .map(movement -> new FeeResponse(movement.getDate(), movement.getTransactionFee()))
                             .collectList();
 
-                    Mono<List<TransferResponse>> transfers = transferRepository.findByFromOrToAndDateBetween(id,id,from,to)
+                    Mono<List<TransferResponse>> transfers = transferRepository.findByFromOrToAndDateBetween(id, id, from, to)
                             .map(TransferResponse::fromModel)
                             .collectList();
 
-                    return Mono.zip(debitCard,movements,fees,transfers)
+                    return Mono.zip(debitCard, movements, fees, transfers)
                             .map(result -> {
                                 report.setDebitCard(result.getT1());
                                 report.setMovements(result.getT2());
@@ -90,7 +91,7 @@ public class AccountServiceImpl implements AccountService {
                                 report.setTransfers(result.getT4());
                                 return report;
                             })
-                            .doOnError(err -> log.error("Error",err));
+                            .doOnError(err -> log.error("Error", err));
                 });
     }
 
@@ -119,6 +120,23 @@ public class AccountServiceImpl implements AccountService {
                 .doOnSuccess(ex -> log.info("Delete all accounts"));
     }
 
+    public Mono<AccountRequest> validateIfClientHasCreditCart(Client accountClient, AccountRequest account) {
+        return webClientUtils.getCredits(accountClient.getId())
+                .hasElements()
+                .flatMap(hasElements -> !hasElements ? Mono.error(new AccountCreationException(accountClient.getProfile().toUpperCase()
+                                + " Client must have a credit cart")) :
+                        Mono.just(account));
+    }
+
+    public Mono<AccountRequest> validateIfPersonalClientHasAccountType(Client accountClient, AccountRequest account) {
+        return accountRepository.findAccountByClientAndType(accountClient.getId(),
+                        account.getType())
+                .hasElements()
+                .flatMap(hasElements -> hasElements ? Mono.error(new AccountCreationException("Client already have a "
+                                + account.getType() + " account")) :
+                        Mono.just(account));
+    }
+
     @Override
     public Mono<AccountResponse> save(AccountRequest accountRequest) {
         return Mono.just(accountRequest)
@@ -127,25 +145,12 @@ public class AccountServiceImpl implements AccountService {
                             account.setClientType(accountClient.getType());
                             account.setClientProfile(accountClient.getProfile());
 
-                            if (accountClient.getProfile().equalsIgnoreCase("VIP") || accountClient.getProfile().equalsIgnoreCase("PYME")) {
-                                return webClientUtils.getCredits(accountClient.getId())
-                                        .hasElements()
-                                        .flatMap(hasElements -> {
-                                            if (!hasElements){
-                                                return Mono.error(new AccountCreationException(accountClient.getProfile().toUpperCase()+ " Client must have a credit cart"));
-                                            }
-                                            return Mono.just(account);
-                                        });
+                            if (accountClient.getProfile().matches("VIP|PYME")) {
+                                return validateIfClientHasCreditCart(accountClient, account);
                             }
 
                             if (accountClient.getType().equalsIgnoreCase("Personal")) {
-                                return accountRepository.findAccountByClientAndType(accountClient.getId(), account.getType())
-                                        .hasElements()
-                                        .flatMap(hasElements -> {
-                                            if (hasElements)
-                                                return Mono.error(new AccountCreationException("Client already have a " + account.getType() + " account"));
-                                            return Mono.just(account);
-                                        });
+                                return validateIfPersonalClientHasAccountType(accountClient, account);
                             }
 
                             return Mono.just(account);

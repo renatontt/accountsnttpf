@@ -4,7 +4,6 @@ import com.group7.accountsservice.dto.*;
 import com.group7.accountsservice.dto.DebitCardRequest;
 import com.group7.accountsservice.dto.DebitCardResponse;
 import com.group7.accountsservice.service.DebitCardService;
-import com.group7.accountsservice.service.DebitCardService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

@@ -20,7 +20,7 @@ public class MovementUtils {
         }else{
             type="withdraw";
         }
-        return new Movement(current.getId(), type, current.getTransactionFee(), Math.abs(difference), current.getDate(), current.getAccount());
+        return new Movement(current.getId(), type, Math.abs(difference),current.getTransactionFee(), current.getDate(), current.getAccount());
     }
 
     public void setTransactionFee(Movement movement, String accountType){

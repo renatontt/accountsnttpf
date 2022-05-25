@@ -1,38 +1,36 @@
 package com.group7.accountsservice.dto;
 
 import com.group7.accountsservice.model.Account;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.group7.accountsservice.model.DebitCard;
+import lombok.*;
 
 import java.util.List;
 
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AccountReportResponse {
-    private String id;
-    private String client;
-    private String clientType;
-    private String clientProfile;
-    private String type;
-    private Double balance;
-    private Double maintenanceFee;
-    private Integer movementsLimit;
-    private List<String> holders;
-    private List<String> signers;
-    private Integer movementDay;
+@EqualsAndHashCode(callSuper=false)
+public class AccountReportResponse extends AccountResponse {
     private DebitCardResponse debitCard;
-
     private List<MovementResponse> movements;
     private List<FeeResponse> fees;
     private List<TransferResponse> transfers;
 
+    @Builder(builderMethodName = "reportBuilder")
+    public AccountReportResponse(String id, String client, String clientType, String clientProfile,
+                                 String type, Double balance, Double maintenanceFee, Integer movementsLimit,
+                                 List<String> holders, List<String> signers, Integer movementDay,
+                                 DebitCardResponse debitCard, List<MovementResponse> movements, List<FeeResponse> fees,
+                                 List<TransferResponse> transfers) {
+        super(id, client, clientType, clientProfile, type, balance, maintenanceFee, movementsLimit, holders, signers, movementDay);
+        this.debitCard = debitCard;
+        this.movements = movements;
+        this.fees = fees;
+        this.transfers = transfers;
+    }
 
     public static AccountReportResponse fromModel(Account account) {
-        return AccountReportResponse.builder()
+        return AccountReportResponse.reportBuilder()
                 .id(account.getId())
                 .client(account.getClient())
                 .clientType(account.getClientType())

@@ -745,4 +745,62 @@ class DebitCardServiceImplTest {
                 .expectNext(DebitCardResponse.fromModel(debitCard))
                 .verifyComplete();
     }
+
+    @Test
+    void getLastMovements(){
+        DebitCard debitCard = DebitCard.builder()
+                .id(CARD_ID)
+                .number(CARD_NUMBER)
+                .client(CARD_CLIENT)
+                .mainAccount(CARD_MAIN_ACCOUNT)
+                .optionalAccounts(new ArrayList<>(Arrays.asList(CARD_MAIN_ACCOUNT)))
+                .build();
+
+        when(debitCardRepository.findById(CARD_ID))
+                .thenReturn(Mono.just(debitCard));
+
+        Movement movement = Movement.builder()
+                .id("627760015d3f4d6ace96c44b")
+                .account("627760015d3f4d6ace96c55cc")
+                .amount(100.0)
+                .date(LocalDate.now())
+                .transactionFee(0.0)
+                .type("pay")
+                .build();
+
+        when(movementRepository.findByAccount(CARD_MAIN_ACCOUNT))
+                .thenReturn(Flux.just(movement));
+
+        StepVerifier.create(debitCardService.getLastMovements(CARD_ID))
+                .expectNext(MovementResponse.fromModel(movement))
+                .verifyComplete();
+    }
+
+    @Test
+    void getBalanceOfMainAccount(){
+        DebitCard debitCard = DebitCard.builder()
+                .id(CARD_ID)
+                .number(CARD_NUMBER)
+                .client(CARD_CLIENT)
+                .mainAccount(CARD_MAIN_ACCOUNT)
+                .optionalAccounts(new ArrayList<>(Arrays.asList(CARD_MAIN_ACCOUNT)))
+                .build();
+
+        when(debitCardRepository.findById(CARD_ID))
+                .thenReturn(Mono.just(debitCard));
+
+        Account account = Account.builder()
+                .id(CARD_MAIN_ACCOUNT)
+                .client(CARD_NUMBER)
+                .type("Saving")
+                .balance(200.0)
+                .build();
+
+        when(accountRepository.findById(CARD_MAIN_ACCOUNT))
+                .thenReturn(Mono.just(account));
+
+        StepVerifier.create(debitCardService.getBalanceOfMainAccount(CARD_ID))
+                .expectNext(200.0)
+                .verifyComplete();
+    }
 }
