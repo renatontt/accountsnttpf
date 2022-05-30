@@ -49,7 +49,9 @@ public class MovementRequest {
     }
 
     public Double getAmountSigned() {
-        return type.equals("withdraw")||type.equals("withdraw debit")||type.equals("pay") ? -1 * amount : amount;
+        return type.equals("withdraw")||
+                type.equals("withdraw debit")||
+                type.equals("pay")||type.equals("yanki out") ? -1 * amount : amount;
     }
 
 }

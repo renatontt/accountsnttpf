@@ -15,9 +15,7 @@ import java.time.LocalDate;
 public class Movement {
     @Id
     private String id;
-
     private String type;
-
     private Double amount;
     private Double transactionFee;
     private LocalDate date;
