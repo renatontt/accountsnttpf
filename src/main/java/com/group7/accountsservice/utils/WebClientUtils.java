@@ -16,9 +16,8 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Component
 public class WebClientUtils {
-
     private WebClient webClient;
-
+    private static final String NOT_FOUND_MESSAGE = "Not found Client with ID: ";
     @Value("${services-uri.clients}")
     private String clientsService;
 
@@ -42,7 +41,7 @@ public class WebClientUtils {
                 .get()
                 .uri("/{id}", id)
                 .retrieve()
-                .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(new AccountCreationException("Not found Client with ID: " + id)))
+                .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(new AccountCreationException(NOT_FOUND_MESSAGE + id)))
                 .bodyToMono(Client.class);
     }
 
@@ -58,8 +57,20 @@ public class WebClientUtils {
                 .get()
                 .uri("/{id}", id)
                 .retrieve()
-                .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(new AccountCreationException("Not found Client with ID: " + id)))
+                .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(new AccountCreationException(NOT_FOUND_MESSAGE + id)))
                 .bodyToFlux(CreditCard.class);
+    }
+
+    public Mono<Boolean> isClientWithCreditDebt(String id) {
+        return webClient
+                .mutate()
+                .baseUrl(creditsService+"/credit_cards/client")
+                .build()
+                .get()
+                .uri("/{id}/is_debt", id)
+                .retrieve()
+                .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(new AccountCreationException(NOT_FOUND_MESSAGE + id)))
+                .bodyToMono(Boolean.class);
     }
 
 }

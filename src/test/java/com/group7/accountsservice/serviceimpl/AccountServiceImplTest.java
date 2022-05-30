@@ -109,6 +109,9 @@ class AccountServiceImplTest {
         when(webClientUtils.getClient(any()))
                 .thenReturn(Mono.just(client));
 
+        when(webClientUtils.isClientWithCreditDebt(any()))
+                .thenReturn(Mono.just(false));
+
         when(accountRepository.findAccountByClientAndType(any(), any()))
                 .thenReturn(Flux.empty());
 
@@ -168,6 +171,9 @@ class AccountServiceImplTest {
 
         when(webClientUtils.getClient(any()))
                 .thenReturn(Mono.just(client));
+
+        when(webClientUtils.isClientWithCreditDebt(any()))
+                .thenReturn(Mono.just(false));
 
         when(webClientUtils.getCredits(any()))
                 .thenReturn(Flux.just(new CreditCard()));
@@ -231,6 +237,9 @@ class AccountServiceImplTest {
         when(webClientUtils.getClient(any()))
                 .thenReturn(Mono.just(client));
 
+        when(webClientUtils.isClientWithCreditDebt(any()))
+                .thenReturn(Mono.just(false));
+
         when(webClientUtils.getCredits(any()))
                 .thenReturn(Flux.empty());
 
@@ -278,6 +287,9 @@ class AccountServiceImplTest {
 
         when(webClientUtils.getClient(any()))
                 .thenReturn(Mono.just(client));
+
+        when(webClientUtils.isClientWithCreditDebt(any()))
+                .thenReturn(Mono.just(false));
 
         when(webClientUtils.getCredits(ACCOUNT_CLIENT))
                 .thenReturn(Flux.empty());
@@ -327,6 +339,9 @@ class AccountServiceImplTest {
         when(webClientUtils.getClient(any()))
                 .thenReturn(Mono.just(client));
 
+        when(webClientUtils.isClientWithCreditDebt(any()))
+                .thenReturn(Mono.just(false));
+
         when(webClientUtils.getCredits(any()))
                 .thenReturn(Flux.just(new CreditCard()));
 
@@ -363,6 +378,9 @@ class AccountServiceImplTest {
                 .client(ACCOUNT_CLIENT)
                 .balance(ACCOUNT_BALANCE)
                 .build();
+
+        when(webClientUtils.isClientWithCreditDebt(any()))
+                .thenReturn(Mono.just(false));
 
         when(accountRepository.save(any()))
                 .thenThrow(new RuntimeException("Connection Lost"));

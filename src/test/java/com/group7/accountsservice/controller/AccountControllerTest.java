@@ -422,6 +422,9 @@ class AccountControllerTest {
         when(webClientUtils.getClient(any()))
                 .thenReturn(Mono.just(clientAux));
 
+        when(webClientUtils.isClientWithCreditDebt(any()))
+                .thenReturn(Mono.just(false));
+
         when(accountRepository.findAccountByClientAndType(any(), any()))
                 .thenReturn(Flux.empty());
 
