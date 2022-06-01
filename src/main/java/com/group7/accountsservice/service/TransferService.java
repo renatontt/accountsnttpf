@@ -19,5 +19,7 @@ public interface TransferService {
 
     Mono<TransferResponse> save(TransferRequest transferRequest);
 
+    Mono<TransferResponse> payTransaction(TransferRequest transferRequest);
+
     Mono<TransferResponse> update(String id,TransferRequest transferRequest);
 }

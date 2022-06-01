@@ -19,6 +19,7 @@ public class TransferResponse {
     private String id;
     private String from;
     private String to;
+    private String transaction;
     private Double amount;
     private LocalDate date;
 
@@ -27,6 +28,7 @@ public class TransferResponse {
                 .id(transfer.getId())
                 .from(transfer.getFrom())
                 .to(transfer.getTo())
+                .transaction(transfer.getTransaction())
                 .amount(transfer.getAmount())
                 .date(transfer.getDate())
                 .build();

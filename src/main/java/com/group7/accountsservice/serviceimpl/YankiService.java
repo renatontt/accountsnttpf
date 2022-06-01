@@ -5,7 +5,6 @@ import com.group7.accountsservice.dto.LinkRequest;
 import com.group7.accountsservice.dto.Result;
 import com.group7.accountsservice.dto.Yanki;
 import com.group7.accountsservice.exception.movement.MovementCreationException;
-import com.group7.accountsservice.model.Account;
 import com.group7.accountsservice.model.Movement;
 import com.group7.accountsservice.repository.AccountRepository;
 import com.group7.accountsservice.repository.DebitCardRepository;
@@ -69,6 +68,7 @@ public class YankiService {
 
     private Mono<Boolean> receiveMovement(Yanki yanki) {
         return accountMap.get(yanki.getTo())
+                .switchIfEmpty(Mono.error(new Throwable("Not found debit card")))
                 .flatMap(accountTo -> {
                     if (!Objects.isNull(accountTo.getDebitCard())) {
                         return makeMovement(accountTo, yanki.getAmount())
@@ -91,18 +91,24 @@ public class YankiService {
 
     @Bean
     Consumer<Yanki> toaccount() {
-        return yanki -> accountMap.get(yanki.getFrom())
-                .flatMap(accountFrom -> {
-                    if (!Objects.isNull(accountFrom.getDebitCard())) {
-                        return sendMovement(accountFrom, yanki)
-                                .flatMap(isSuccess -> isSuccess ?
-                                        receiveMovement(yanki) :
-                                        Mono.error(new MovementCreationException("Failed")));
-                    }
-                    return receiveMovement(yanki);
-                })
-                .doOnSuccess(x -> log.info("Account from: {}", x))
-                .subscribe();
+        return yanki -> {
+            if (Objects.isNull(yanki.getFrom())){
+                receiveMovement(yanki)
+                        .subscribe();
+            }
+            accountMap.get(yanki.getFrom())
+                    .flatMap(accountFrom -> {
+                        if (!Objects.isNull(accountFrom.getDebitCard())) {
+                            return sendMovement(accountFrom, yanki)
+                                    .flatMap(isSuccess -> isSuccess ?
+                                            receiveMovement(yanki) :
+                                            Mono.error(new MovementCreationException("Failed")));
+                        }
+                        return receiveMovement(yanki);
+                    })
+                    .doOnSuccess(x -> log.info("Account from: {}", x))
+                    .subscribe();
+        };
     }
 
     @Bean

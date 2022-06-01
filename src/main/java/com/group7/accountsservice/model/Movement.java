@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @ToString
 @AllArgsConstructor
-@Document(collection="movements")
+@Document(collection = "movements")
 public class Movement {
     @Id
     private String id;
@@ -22,12 +22,14 @@ public class Movement {
     @NonNull
     private String account;
 
-    public Double getAmountSigned(){
-        Double amountSigned = type.equalsIgnoreCase("withdraw")||type.equalsIgnoreCase("Transfer Out")?-1*amount:amount;
+    public Double getAmountSigned() {
+        Double amountSigned = type.equalsIgnoreCase("withdraw") ||
+                type.equalsIgnoreCase("Transfer Out") ||
+                type.equalsIgnoreCase("Pay Transaction") ? -1 * amount : amount;
         return amountSigned - transactionFee;
     }
 
-    public int getDayOfMovement(){
+    public int getDayOfMovement() {
         return date.getDayOfMonth();
     }
 }

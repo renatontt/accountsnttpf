@@ -19,6 +19,7 @@ public class Transfer {
     private String from;
     @NonNull
     private String to;
+    private String transaction;
     @NonNull
     private Double amount;
     private LocalDate date;

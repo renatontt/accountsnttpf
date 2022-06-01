@@ -38,6 +38,12 @@ public class TransferController {
         return service.save(movementRequest);
     }
 
+    @PostMapping("/payTransaction")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Mono<TransferResponse> payTransaction(@RequestBody TransferRequest movementRequest){
+        return service.payTransaction(movementRequest);
+    }
+
     @PutMapping("{id}")
     public Mono<TransferResponse> updateTransfer(@PathVariable String id,
                                                         @RequestBody TransferRequest movementRequest){

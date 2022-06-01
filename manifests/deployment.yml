@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: accounts
+  name: accountsnttpf
   labels:
-    app: accounts
+    app: accountsnttpf
 spec:
   replicas: 1
   selector:
     matchLabels:
-      service: accounts
+      service: accountsnttpf
   template:
     metadata:
       labels:
-        app: accounts
-        service: accounts
+        app: accountsnttpf
+        service: accountsnttpf
     spec:
       containers:
-        - name: accounts
-          image: accounts.azurecr.io/accounts:v1
+        - name: accountsnttpf
+          image: accountsnttpf.azurecr.io/accountsnttpf:v1
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8081

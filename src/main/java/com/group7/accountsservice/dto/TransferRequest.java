@@ -20,6 +20,7 @@ import java.util.Objects;
 public class TransferRequest {
     private String from;
     private String to;
+    private String transaction;
     private Double amount;
 
     public Transfer toModel() {
@@ -34,6 +35,7 @@ public class TransferRequest {
                 .from(this.from)
                 .to(this.to)
                 .amount(this.amount)
+                .transaction(this.transaction)
                 .date(LocalDate.now())
                 .build();
     }

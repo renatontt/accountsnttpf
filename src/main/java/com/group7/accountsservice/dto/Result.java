@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Objects;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -14,7 +16,7 @@ public class Result {
     private String status;
     private String message;
 
-    public static Result successToSender(Yanki yanki){
+    public static Result successToSender(Yanki yanki) {
         return Result.builder()
                 .to(yanki.getFrom())
                 .status("Success")
@@ -22,11 +24,14 @@ public class Result {
                 .build();
     }
 
-    public static Result successToReceiver(Yanki yanki){
+    public static Result successToReceiver(Yanki yanki) {
+
+        String last = Objects.isNull(yanki.getFrom()) ? "a transaction" : String.valueOf(yanki.getFrom());
+
         return Result.builder()
                 .to(yanki.getTo())
                 .status("Success")
-                .message("You received a Yanki of " + yanki.getAmount() + " from " + yanki.getFrom())
+                .message("You received a Yanki of " + yanki.getAmount() + " from " + last)
                 .build();
     }
 
